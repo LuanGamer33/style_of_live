@@ -60,9 +60,14 @@ form {
     width: 100%;
 }
 
-.container h1 {
+.container h2 {
     font-size: 27px;
     margin: -10px 0 10px 0;
+}
+
+.container .h2{
+    font-size: 20px;
+    margin-left: 35px;
 }
 
 .input-box {
@@ -229,8 +234,8 @@ form {
     transition-delay: 1.2s;
 }
 
-.toggle-panel h1{
-    padding: 20px;
+.toggle-panel h1,
+.toggle-panel h2 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
