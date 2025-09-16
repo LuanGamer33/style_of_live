@@ -18,8 +18,10 @@ body  {
 
 .container {
     position: relative;
-    width: 850px;
-    height:550px;
+    width: 100%;
+    max-width: 850px;
+    height: auto;
+    min-height:550px;
     background: #ffff;
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
@@ -263,7 +265,7 @@ form {
 .form-box {
     bottom: 0;
     width: 100%;
-    height: 70%;
+    height: 60%;
     padding: 30px 20px;
 }
 
@@ -287,7 +289,7 @@ form {
 
 .toggle-panel {
     width: 100%;
-    height: 30%;
+    height: 40%;
 }
 
 .toggle-panel.toggle-left {
@@ -308,6 +310,19 @@ form {
     bottom: 0;
 }
 }
+
+.input-box input,
+.reg .inb input,
+.complete input {
+    font-size: 14px;
+    padding: 12px;
+}
+
+.btn {
+    height: 44px;
+    font-size: 15px;
+}
+
 
 @media screen and (max-width: 400px) {
     .form-box {
