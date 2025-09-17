@@ -6,7 +6,7 @@ firebase.auth().onAuthStateChanged((user) => {
         document.getElementById("user-info").textContent = `Hola, ${user.displayName} (${user.email})`;
 
         // Enviar email y nombre a tu backend en PHP
-        fetch("/php/sync_user.php", {
+        fetch("../php/sync_user.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: user.email, nombre: user.displayName })
@@ -104,5 +104,6 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.href = "../index.html";
     }
 });
+
 
 
