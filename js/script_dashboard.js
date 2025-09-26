@@ -1,64 +1,42 @@
-const userInfo = document.getElementById('user-info');
+    const userInfo = document.getElementById('user-info');
 
 firebase.auth().onAuthStateChanged((user) => {
-    if (!user) {
-        window.location.href = "../index.html";
-        return;
-    }
+    if (user) {
+        // Mostrar usuario en pantalla
+        document.getElementById("user-info").textContent = `Hola, ${user.displayName} (${user.email})`;
 
-    const email = user.email;
-    const nombre = user.displayName || email.split('@')[0];
-    const firebase_uid = user.uid;
-
-    document.getElementById("user-info").textContent = `Hola, ${nombre} (${email})`;
-
-    const id_us = localStorage.getItem("id_us");
-
-    if (id_us) {
-        // Ya está sincronizado, solo cargar notas
-        cargarNotas();
-    } else {
-        // Sincronizar con backend
+        // Enviar email y nombre a tu backend en PHP
         fetch("../php/sync_user.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, nombre, firebase_uid })
+            body: JSON.stringify({ email: user.email, nombre: user.displayName })
         })
         .then(res => res.json())
         .then(data => {
+            console.log("Usuario sincronizado con MySQL:", data);
+
+            // Guardar el id_us en localStorage para usarlo después
             if (data.id_us) {
                 localStorage.setItem("id_us", data.id_us);
-                cargarNotas();
-            } else {
-                console.error("Error al sincronizar usuario:", data.msg);
-                alert("Error al sincronizar usuario con el servidor.");
             }
         })
-        .catch(err => console.error("Error al sincronizar usuario:", err));
+        .catch(err => console.error("Error:", err));
+    } else {
+        window.location.href = "../index.html";
     }
 });
 
+
 function logout() {
     firebase.auth().signOut().then(() => {
-        localStorage.removeItem("id_us");
         window.location.href = "../index.html";
     });
 }
 
 function guardarNota() {
     const id_us = localStorage.getItem("id_us");
-    const nombre = document.getElementById("nota-nombre").value.trim();
-    const contenido = document.getElementById("nota-contenido").value.trim();
-
-    if (!id_us) {
-        alert("Usuario no autenticado");
-        return;
-    }
-
-    if (!nombre || !contenido) {
-        alert("Por favor completa todos los campos");
-        return;
-    }
+    const nombre = document.getElementById("nota-nombre").value;
+    const contenido = document.getElementById("nota-contenido").value;
 
     fetch("../php/guardar_nota.php", {
         method: "POST",
@@ -71,23 +49,12 @@ function guardarNota() {
             data.status === "ok"
                 ? "Nota guardada con ID: " + data.id_nota
                 : "Error: " + data.msg;
-
-        if (data.status === "ok") {
-            document.getElementById("nota-nombre").value = "";
-            document.getElementById("nota-contenido").value = "";
-            cargarNotas();
-        }
     })
-    .catch(err => console.error("Error al guardar nota:", err));
+    .catch(err => console.error("Error:", err));
 }
 
 function cargarNotas() {
     const id_us = localStorage.getItem("id_us");
-
-    if (!id_us) {
-        console.warn("No se encontró id_us en localStorage");
-        return;
-    }
 
     fetch("../php/obtener_notas.php", {
         method: "POST",
@@ -99,7 +66,7 @@ function cargarNotas() {
         const lista = document.getElementById("lista-notas");
         lista.innerHTML = "";
 
-        if (!Array.isArray(notas) || notas.length === 0) {
+        if (notas.length === 0) {
             lista.innerHTML = "<p>No tienes notas guardadas.</p>";
             return;
         }
@@ -116,3 +83,26 @@ function cargarNotas() {
     })
     .catch(err => console.error("Error al obtener notas:", err));
 }
+
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        document.getElementById("user-info").textContent = `Hola, ${user.displayName} (${user.email})`;
+
+        fetch("../php/sync_user.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email, nombre: user.displayName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.id_us) {
+                localStorage.setItem("id_us", data.id_us);
+                cargarNotas(); // cargar notas al entrar
+            }
+        });
+    } else {
+        window.location.href = "../index.html";
+    }
+});
+
+

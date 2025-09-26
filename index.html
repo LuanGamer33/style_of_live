@@ -8,8 +8,8 @@
     <title>MyDaily - Entrar o registrarse</title>
     <link rel="icon" type="image/png" href="img/calendar.png">
     <link rel="stylesheet" href="css/styles.css">
-    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet' href="css/styles.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' href="css/styles.css">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet' href="/css/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' href="/css/styles.css">
 </head>
 
 <body>
@@ -38,38 +38,41 @@
         </div>
 
         <div class="form-box register">
-            <form action="php/register.php" method="POST">
+            <form id="registerForm" action="php/register.php" method="POST" enctype="application/x-www-form-urlencoded" onsubmit="return validateRegisterForm()">
                 <h2>Registrar</h2>
                 <div class="reg">
                     <div class="inb">
-                        <input type="text" name="nombre" placeholder="Nombre" required>
+                        <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
                     </div>
                     <div class="inb">
-                        <input type="text"
-                        name="apellido" placeholder="Apellido" required>
+                        <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
                     </div>
                 </div>
                 <div class="reg">
                     <div class="inb">
-                        <input type="date"
-                        name="fn" required>
+                        <input type="date" id="fn" name="fn" required>
                     </div>
                     <div class="inb">
-                        <input type="text" name="sexo" placeholder="Sexo" required>
+                        <select id="sexo" name="sexo" required>
+                            <option value="">Seleccione...</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="O">Otro</option>
+                        </select>
                     </div>
                 </div>
                 <div class="complete">
-                    <input type="text" name="Correo" placeholder="Correo" required>
+                    <input type="email" id="Correo" name="Correo" placeholder="Correo" required>
                 </div>
                 <div class="complete">
-                    <input type="text" name="username" placeholder="Nombre de Usuario" required>
+                    <input type="text" id="username" name="username" placeholder="Nombre de Usuario" required>
                 </div>
                 <div class="reg">
                     <div class="inb">
-                        <input type="password" name="pass" placeholder="Contraseña" required>
+                        <input type="password" id="pass" name="pass" placeholder="Contraseña" required minlength="6">
                     </div>
                     <div class="inb">
-                        <input type="password" name="conf_pass" placeholder="confirme Contraseña" required>
+                        <input type="password" id="conf_pass" name="conf_pass" placeholder="Confirme Contraseña" required minlength="6">
                     </div>
                 </div>
 
@@ -97,6 +100,41 @@
             </div>
         </div>
     </div>
+    <script>
+        function validateRegisterForm() {
+            const form = document.getElementById('registerForm');
+            const pass = document.getElementById('pass').value;
+            const confPass = document.getElementById('conf_pass').value;
+            const email = document.getElementById('Correo').value;
+            
+            // Validar que las contraseñas coincidan
+            if (pass !== confPass) {
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+            
+            // Validar formato de correo
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Por favor ingrese un correo electrónico válido');
+                return false;
+            }
+            
+            // Mostrar los datos que se enviarán (solo para depuración)
+            console.log('Datos del formulario:', {
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                fn: document.getElementById('fn').value,
+                sexo: document.getElementById('sexo').value,
+                Correo: email,
+                username: document.getElementById('username').value,
+                pass: '[PROTECTED]',
+                conf_pass: '[PROTECTED]'
+            });
+            
+            return true;
+        }
+    </script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="js/firebase-config.js"></script>

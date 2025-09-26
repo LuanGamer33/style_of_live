@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `mydaily`
 --
+CREATE DATABASE IF NOT EXISTS `mydaily` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `mydaily`;
 
 -- --------------------------------------------------------
 
@@ -43,12 +45,12 @@ CREATE TABLE `agenda` (
 CREATE TABLE `calendario` (
   `id_cal` int(11) NOT NULL,
   `nom` varchar(110) NOT NULL,
-  `descr` text NOT NULL,
+  `descr` text DEFAULT NULL,
   `fecha` date NOT NULL,
-  `id_cat` int(11) NOT NULL,
-  `lugar` varchar(110) NOT NULL,
-  `prior` int(11) NOT NULL,
-  `id_recur` int(11) NOT NULL,
+  `id_cat` int(11) DEFAULT NULL,
+  `lugar` varchar(110) DEFAULT NULL,
+  `prior` int(11) DEFAULT 1,
+  `id_recur` int(11) DEFAULT NULL,
   `id_us` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -84,8 +86,8 @@ CREATE TABLE `habitos` (
   `id_hab` int(11) NOT NULL,
   `nom` varchar(110) NOT NULL,
   `hora` time NOT NULL,
-  `prior` int(11) NOT NULL,
-  `descr` text NOT NULL,
+  `prior` int(11) DEFAULT 1,
+  `descr` text DEFAULT NULL,
   `id_us` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -98,12 +100,12 @@ CREATE TABLE `habitos` (
 CREATE TABLE `listas` (
   `id_list` int(11) NOT NULL,
   `nom` varchar(110) NOT NULL,
-  `cont` text NOT NULL,
-  `complt` binary(1) NOT NULL,
-  `prior` int(11) NOT NULL,
+  `cont` text DEFAULT NULL,
+  `complt` tinyint(1) DEFAULT 0,
+  `prior` int(11) DEFAULT 1,
   `id_us` int(11) NOT NULL,
-  `id_cat` int(11) NOT NULL,
-  `id_rec` int(11) NOT NULL
+  `id_cat` int(11) DEFAULT NULL,
+  `id_rec` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -115,7 +117,7 @@ CREATE TABLE `listas` (
 CREATE TABLE `notas` (
   `id_notas` int(11) NOT NULL,
   `nom` varchar(110) NOT NULL,
-  `cont` text NOT NULL,
+  `cont` text DEFAULT NULL,
   `id_us` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -127,7 +129,7 @@ CREATE TABLE `notas` (
 
 CREATE TABLE `recurrencia` (
   `id_rec` int(11) NOT NULL,
-  `tipo` int(11) NOT NULL
+  `tipo` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -150,14 +152,14 @@ CREATE TABLE `tarea` (
 CREATE TABLE `usuario` (
   `id_us` int(11) NOT NULL,
   `username` varchar(110) NOT NULL,
-  `passw` varchar(110) NOT NULL,
-  `status` int(11) NOT NULL,
+  `passw` varchar(255) NOT NULL,
+  `status` int(11) DEFAULT 1,
   `correo` varchar(110) NOT NULL,
   `per_nom` text NOT NULL,
   `fn` date NOT NULL,
   `per_ape` text NOT NULL,
-  `gen` text NOT NULL,
-  `conf_passw` varchar(110) NOT NULL
+  `gen` varchar(20) DEFAULT NULL,
+  `conf_passw` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -178,7 +180,7 @@ ALTER TABLE `calendario`
   ADD PRIMARY KEY (`id_cal`),
   ADD KEY `id_us` (`id_us`),
   ADD KEY `id_cat` (`id_cat`),
-  ADD KEY `id_rec` (`id_recur`);
+  ADD KEY `id_recur` (`id_recur`);
 
 --
 -- Indices de la tabla `categoria`
@@ -233,7 +235,9 @@ ALTER TABLE `tarea`
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  ADD PRIMARY KEY (`id_us`);
+  ADD PRIMARY KEY (`id_us`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `correo` (`correo`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -307,47 +311,47 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `agenda`
 --
 ALTER TABLE `agenda`
-  ADD CONSTRAINT `agenda_ibfk_1` FOREIGN KEY (`id_cal`) REFERENCES `calendario` (`id_cal`);
+  ADD CONSTRAINT `agenda_ibfk_1` FOREIGN KEY (`id_cal`) REFERENCES `calendario` (`id_cal`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `calendario`
 --
 ALTER TABLE `calendario`
-  ADD CONSTRAINT `calendario_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`),
-  ADD CONSTRAINT `id_cat` FOREIGN KEY (`id_cat`) REFERENCES `categoria` (`id_cat`),
-  ADD CONSTRAINT `id_rec` FOREIGN KEY (`id_recur`) REFERENCES `recurrencia` (`id_rec`);
+  ADD CONSTRAINT `calendario_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`) ON DELETE CASCADE,
+  ADD CONSTRAINT `calendario_ibfk_2` FOREIGN KEY (`id_cat`) REFERENCES `categoria` (`id_cat`) ON DELETE SET NULL,
+  ADD CONSTRAINT `calendario_ibfk_3` FOREIGN KEY (`id_recur`) REFERENCES `recurrencia` (`id_rec`) ON DELETE SET NULL;
 
 --
 -- Filtros para la tabla `evento`
 --
 ALTER TABLE `evento`
-  ADD CONSTRAINT `evento_ibfk_1` FOREIGN KEY (`id_cal`) REFERENCES `calendario` (`id_cal`);
+  ADD CONSTRAINT `evento_ibfk_1` FOREIGN KEY (`id_cal`) REFERENCES `calendario` (`id_cal`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `habitos`
 --
 ALTER TABLE `habitos`
-  ADD CONSTRAINT `habitos_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`);
+  ADD CONSTRAINT `habitos_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `listas`
 --
 ALTER TABLE `listas`
-  ADD CONSTRAINT `listas_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`),
-  ADD CONSTRAINT `listas_ibfk_2` FOREIGN KEY (`id_rec`) REFERENCES `recurrencia` (`id_rec`),
-  ADD CONSTRAINT `listas_ibfk_3` FOREIGN KEY (`id_cat`) REFERENCES `categoria` (`id_cat`);
+  ADD CONSTRAINT `listas_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`) ON DELETE CASCADE,
+  ADD CONSTRAINT `listas_ibfk_2` FOREIGN KEY (`id_rec`) REFERENCES `recurrencia` (`id_rec`) ON DELETE SET NULL,
+  ADD CONSTRAINT `listas_ibfk_3` FOREIGN KEY (`id_cat`) REFERENCES `categoria` (`id_cat`) ON DELETE SET NULL;
 
 --
 -- Filtros para la tabla `notas`
 --
 ALTER TABLE `notas`
-  ADD CONSTRAINT `notas_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`);
+  ADD CONSTRAINT `notas_ibfk_1` FOREIGN KEY (`id_us`) REFERENCES `usuario` (`id_us`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `tarea`
 --
 ALTER TABLE `tarea`
-  ADD CONSTRAINT `tarea_ibfk_1` FOREIGN KEY (`id_list`) REFERENCES `listas` (`id_list`);
+  ADD CONSTRAINT `tarea_ibfk_1` FOREIGN KEY (`id_list`) REFERENCES `listas` (`id_list`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
